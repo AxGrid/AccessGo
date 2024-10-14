@@ -6,18 +6,18 @@ import (
 	"gorm.io/gorm"
 )
 
-// UserGoService представляет сервис для управления пользователями и группами
-type UserGoService struct {
+// AccessGoService представляет сервис для управления пользователями и группами
+type AccessGoService struct {
 	db *gorm.DB
 }
 
-// NewUserGoService создает новый экземпляр UserGoService
-func NewUserGoService(db *gorm.DB) *UserGoService {
-	return &UserGoService{db: db}
+// NewAccessGoService создает новый экземпляр AccessGoService
+func NewAccessGoService(db *gorm.DB) *AccessGoService {
+	return &AccessGoService{db: db}
 }
 
 // CreateUser создает нового пользователя
-func (s *UserGoService) CreateUser(email, password, name string, userType UserType) (*User, error) {
+func (s *AccessGoService) CreateUser(email, password, name string, userType UserType) (*User, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (s *UserGoService) CreateUser(email, password, name string, userType UserTy
 }
 
 // UpdateUser обновляет информацию о пользователе
-func (s *UserGoService) UpdateUser(userID uint, email, password, name string, userType UserType) (*User, error) {
+func (s *AccessGoService) UpdateUser(userID uint, email, password, name string, userType UserType) (*User, error) {
 	var user User
 	if err := s.db.First(&user, userID).Error; err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (s *UserGoService) UpdateUser(userID uint, email, password, name string, us
 }
 
 // DeleteUser удаляет пользователя
-func (s *UserGoService) DeleteUser(userID uint) error {
+func (s *AccessGoService) DeleteUser(userID uint) error {
 	result := s.db.Delete(&User{}, userID)
 	if result.Error != nil {
 		return result.Error
@@ -77,7 +77,7 @@ func (s *UserGoService) DeleteUser(userID uint) error {
 }
 
 // CreateGroup создает новую группу
-func (s *UserGoService) CreateGroup(name string) (*Group, error) {
+func (s *AccessGoService) CreateGroup(name string) (*Group, error) {
 	group := &Group{
 		Name: name,
 	}
@@ -91,7 +91,7 @@ func (s *UserGoService) CreateGroup(name string) (*Group, error) {
 }
 
 // UpdateGroup обновляет информацию о группе
-func (s *UserGoService) UpdateGroup(groupID uint, name string) (*Group, error) {
+func (s *AccessGoService) UpdateGroup(groupID uint, name string) (*Group, error) {
 	var group Group
 	if err := s.db.First(&group, groupID).Error; err != nil {
 		return nil, err
@@ -102,12 +102,11 @@ func (s *UserGoService) UpdateGroup(groupID uint, name string) (*Group, error) {
 	if err := s.db.Save(&group).Error; err != nil {
 		return nil, err
 	}
-
 	return &group, nil
 }
 
 // DeleteGroup удаляет группу
-func (s *UserGoService) DeleteGroup(groupID uint) error {
+func (s *AccessGoService) DeleteGroup(groupID uint) error {
 	result := s.db.Delete(&Group{}, groupID)
 	if result.Error != nil {
 		return result.Error
@@ -119,7 +118,7 @@ func (s *UserGoService) DeleteGroup(groupID uint) error {
 }
 
 // CreateAccess создает новое право доступа
-func (s *UserGoService) CreateAccess(name, description string) (*Access, error) {
+func (s *AccessGoService) CreateAccess(name, description string) (*Access, error) {
 	access := &Access{
 		Name:        name,
 		Description: description,
@@ -134,7 +133,7 @@ func (s *UserGoService) CreateAccess(name, description string) (*Access, error) 
 }
 
 // UpdateAccess обновляет информацию о праве доступа
-func (s *UserGoService) UpdateAccess(accessID uint, name, description string) (*Access, error) {
+func (s *AccessGoService) UpdateAccess(accessID uint, name, description string) (*Access, error) {
 	var access Access
 	if err := s.db.First(&access, accessID).Error; err != nil {
 		return nil, err
@@ -151,7 +150,7 @@ func (s *UserGoService) UpdateAccess(accessID uint, name, description string) (*
 }
 
 // DeleteAccess удаляет право доступа
-func (s *UserGoService) DeleteAccess(accessID uint) error {
+func (s *AccessGoService) DeleteAccess(accessID uint) error {
 	result := s.db.Delete(&Access{}, accessID)
 	if result.Error != nil {
 		return result.Error
@@ -163,7 +162,7 @@ func (s *UserGoService) DeleteAccess(accessID uint) error {
 }
 
 // GetAccessByName получает право доступа по имени
-func (s *UserGoService) GetAccessByName(name string) (*Access, error) {
+func (s *AccessGoService) GetAccessByName(name string) (*Access, error) {
 	var access Access
 	if err := s.db.Where("name = ?", name).First(&access).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -175,7 +174,7 @@ func (s *UserGoService) GetAccessByName(name string) (*Access, error) {
 }
 
 // ListAccesses возвращает список всех прав доступа
-func (s *UserGoService) ListAccesses() ([]Access, error) {
+func (s *AccessGoService) ListAccesses() ([]Access, error) {
 	var accesses []Access
 	if err := s.db.Find(&accesses).Error; err != nil {
 		return nil, err
@@ -184,7 +183,7 @@ func (s *UserGoService) ListAccesses() ([]Access, error) {
 }
 
 // AssignUserToGroup добавляет пользователя в группу
-func (s *UserGoService) AssignUserToGroup(userID, groupID uint) error {
+func (s *AccessGoService) AssignUserToGroup(userID, groupID uint) error {
 	var user User
 	if err := s.db.First(&user, userID).Error; err != nil {
 		return errors.New("пользователь не найден")
@@ -203,7 +202,7 @@ func (s *UserGoService) AssignUserToGroup(userID, groupID uint) error {
 }
 
 // ExcludeUserFromGroup удаляет пользователя из группы
-func (s *UserGoService) ExcludeUserFromGroup(userID, groupID uint) error {
+func (s *AccessGoService) ExcludeUserFromGroup(userID, groupID uint) error {
 	var user User
 	if err := s.db.First(&user, userID).Error; err != nil {
 		return errors.New("пользователь не найден")
@@ -222,7 +221,7 @@ func (s *UserGoService) ExcludeUserFromGroup(userID, groupID uint) error {
 }
 
 // SetUserGroups устанавливает точный список групп для пользователя
-func (s *UserGoService) SetUserGroups(userID uint, groupIDs ...uint) error {
+func (s *AccessGoService) SetUserGroups(userID uint, groupIDs ...uint) error {
 	var user User
 	if err := s.db.First(&user, userID).Error; err != nil {
 		return errors.New("пользователь не найден")
@@ -247,7 +246,7 @@ func (s *UserGoService) SetUserGroups(userID uint, groupIDs ...uint) error {
 }
 
 // GetUserGroups возвращает список групп пользователя
-func (s *UserGoService) GetUserGroups(userID uint) ([]Group, error) {
+func (s *AccessGoService) GetUserGroups(userID uint) ([]Group, error) {
 	var user User
 	if err := s.db.Preload("Groups").First(&user, userID).Error; err != nil {
 		return nil, errors.New("пользователь не найден")
@@ -257,7 +256,7 @@ func (s *UserGoService) GetUserGroups(userID uint) ([]Group, error) {
 }
 
 // GetGroupUsers возвращает список пользователей в группе
-func (s *UserGoService) GetGroupUsers(groupID uint) ([]User, error) {
+func (s *AccessGoService) GetGroupUsers(groupID uint) ([]User, error) {
 	var group Group
 	if err := s.db.Preload("Users").First(&group, groupID).Error; err != nil {
 		return nil, errors.New("группа не найдена")
@@ -267,7 +266,7 @@ func (s *UserGoService) GetGroupUsers(groupID uint) ([]User, error) {
 }
 
 // AddUserAccessLevel добавляет уровень доступа пользователю
-func (s *UserGoService) AddUserAccessLevel(userID uint, accessName string) error {
+func (s *AccessGoService) AddUserAccessLevel(userID uint, accessName string) error {
 	var user User
 	if err := s.db.First(&user, userID).Error; err != nil {
 		return errors.New("пользователь не найден")
@@ -291,7 +290,7 @@ func (s *UserGoService) AddUserAccessLevel(userID uint, accessName string) error
 }
 
 // RemoveUserAccessLevel удаляет уровень доступа у пользователя
-func (s *UserGoService) RemoveUserAccessLevel(userID uint, accessName string) error {
+func (s *AccessGoService) RemoveUserAccessLevel(userID uint, accessName string) error {
 	var access Access
 	if err := s.db.Where("name = ?", accessName).First(&access).Error; err != nil {
 		return errors.New("право доступа не найдено")
@@ -309,7 +308,7 @@ func (s *UserGoService) RemoveUserAccessLevel(userID uint, accessName string) er
 }
 
 // AddGroupAccessLevel добавляет уровень доступа группе
-func (s *UserGoService) AddGroupAccessLevel(groupID uint, accessName string) error {
+func (s *AccessGoService) AddGroupAccessLevel(groupID uint, accessName string) error {
 	var group Group
 	if err := s.db.First(&group, groupID).Error; err != nil {
 		return errors.New("группа не найдена")
@@ -333,7 +332,7 @@ func (s *UserGoService) AddGroupAccessLevel(groupID uint, accessName string) err
 }
 
 // RemoveGroupAccessLevel удаляет уровень доступа у группы
-func (s *UserGoService) RemoveGroupAccessLevel(groupID uint, accessName string) error {
+func (s *AccessGoService) RemoveGroupAccessLevel(groupID uint, accessName string) error {
 	var access Access
 	if err := s.db.Where("name = ?", accessName).First(&access).Error; err != nil {
 		return errors.New("право доступа не найдено")
@@ -351,7 +350,7 @@ func (s *UserGoService) RemoveGroupAccessLevel(groupID uint, accessName string) 
 }
 
 // CheckUserAccess проверяет, имеет ли пользователь указанный уровень доступа
-func (s *UserGoService) CheckUserAccess(userID uint, accessName string) (bool, error) {
+func (s *AccessGoService) CheckUserAccess(userID uint, accessName string) (bool, error) {
 	var user User
 	if err := s.db.Preload("Accesses.Access").Preload("Groups.Accesses.Access").First(&user, userID).Error; err != nil {
 		return false, errors.New("пользователь не найден")
@@ -377,7 +376,7 @@ func (s *UserGoService) CheckUserAccess(userID uint, accessName string) (bool, e
 }
 
 // GetUserAccessLevels возвращает все уровни доступа пользователя
-func (s *UserGoService) GetUserAccessLevels(userID uint) ([]string, error) {
+func (s *AccessGoService) GetUserAccessLevels(userID uint) ([]string, error) {
 	var user User
 	if err := s.db.Preload("Accesses.Access").Preload("Groups.Accesses.Access").First(&user, userID).Error; err != nil {
 		return nil, errors.New("пользователь не найден")
@@ -406,7 +405,7 @@ func (s *UserGoService) GetUserAccessLevels(userID uint) ([]string, error) {
 }
 
 // SetupDefaultPermissions создает стандартные права доступа
-func (s *UserGoService) SetupDefaultPermissions() error {
+func (s *AccessGoService) SetupDefaultPermissions() error {
 	defaultPermissions := []struct {
 		Name        string
 		Description string
@@ -449,7 +448,7 @@ func (s *UserGoService) SetupDefaultPermissions() error {
 }
 
 // GetUserByEmail возвращает пользователя по email
-func (s *UserGoService) GetUserByEmail(email string) (*User, error) {
+func (s *AccessGoService) GetUserByEmail(email string) (*User, error) {
 	var user User
 	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -461,7 +460,7 @@ func (s *UserGoService) GetUserByEmail(email string) (*User, error) {
 }
 
 // CreateDefaultAdminUser создает пользователя-администратора с полными правами
-func (s *UserGoService) CreateDefaultAdminUser(email, password, name string) error {
+func (s *AccessGoService) CreateDefaultAdminUser(email, password, name string) error {
 	admin, err := s.CreateUser(email, password, name, UserTypeAdmin)
 	if err != nil {
 		return err
@@ -481,7 +480,7 @@ func (s *UserGoService) CreateDefaultAdminUser(email, password, name string) err
 }
 
 // AuthenticateUser аутентифицирует пользователя по email и паролю
-func (s *UserGoService) AuthenticateUser(email, password string) (*User, error) {
+func (s *AccessGoService) AuthenticateUser(email, password string) (*User, error) {
 	user, err := s.GetUserByEmail(email)
 	if err != nil {
 		return nil, err

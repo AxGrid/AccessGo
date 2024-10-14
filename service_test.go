@@ -20,7 +20,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 func TestCreateUser(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	user, err := service.CreateUser("test@example.com", "password", "Test User", UserTypeUser)
 	assert.NoError(t, err)
@@ -32,7 +32,7 @@ func TestCreateUser(t *testing.T) {
 
 func TestCreateAndAuthenticateUser(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	// Создаем пользователя
 	_, err := service.CreateUser("auth@example.com", "password", "Auth User", UserTypeUser)
@@ -51,7 +51,7 @@ func TestCreateAndAuthenticateUser(t *testing.T) {
 
 func TestCreateAndDeleteUser(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	user, err := service.CreateUser("delete@example.com", "password", "Delete User", UserTypeUser)
 	assert.NoError(t, err)
@@ -66,7 +66,7 @@ func TestCreateAndDeleteUser(t *testing.T) {
 
 func TestCreateAndUpdateUser(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	user, err := service.CreateUser("update@example.com", "password", "Update User", UserTypeUser)
 	assert.NoError(t, err)
@@ -80,7 +80,7 @@ func TestCreateAndUpdateUser(t *testing.T) {
 
 func TestCreateGroupAndAssignUser(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	user, err := service.CreateUser("group@example.com", "password", "Group User", UserTypeUser)
 	assert.NoError(t, err)
@@ -99,7 +99,7 @@ func TestCreateGroupAndAssignUser(t *testing.T) {
 
 func TestSetupDefaultPermissionsAndCreateAdmin(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	err := service.SetupDefaultPermissions()
 	assert.NoError(t, err)
@@ -118,7 +118,7 @@ func TestSetupDefaultPermissionsAndCreateAdmin(t *testing.T) {
 
 func TestAddAndCheckUserAccess(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	user, err := service.CreateUser("access@example.com", "password", "Access User", UserTypeUser)
 	assert.NoError(t, err)
@@ -140,7 +140,7 @@ func TestAddAndCheckUserAccess(t *testing.T) {
 
 func TestAddAndCheckUserGroupAccess(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	user, err := service.CreateUser("access@example.com", "password", "Access User", UserTypeUser)
 	assert.NoError(t, err)
@@ -168,7 +168,7 @@ func TestAddAndCheckUserGroupAccess(t *testing.T) {
 
 func TestGetUserByEmail(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewUserGoService(db)
+	service := NewAccessGoService(db)
 
 	// Создаем пользователя
 	email := "getuser@example.com"

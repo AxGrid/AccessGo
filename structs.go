@@ -52,3 +52,11 @@ const (
 	UserTypeUser     UserType = "user"
 	UserTypeBlocked  UserType = "blocked"
 )
+
+type Session struct {
+	ID         string
+	UserID     int
+	CreatedAt  time.Time
+	ExpiresAt  time.Time
+	IsLongTerm bool
+}

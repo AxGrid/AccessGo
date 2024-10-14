@@ -375,8 +375,8 @@ func (s *AccessGoService) CheckUserAccess(userID uint, accessName string) (bool,
 	return false, nil
 }
 
-// GetUserAccessLevels возвращает все уровни доступа пользователя
-func (s *AccessGoService) GetUserAccessLevels(userID uint) ([]string, error) {
+// GetUserSummaryAccessLevels возвращает все уровни доступа пользователя
+func (s *AccessGoService) GetUserSummaryAccessLevels(userID uint) ([]string, error) {
 	var user User
 	if err := s.db.Preload("Accesses.Access").Preload("Groups.Accesses.Access").First(&user, userID).Error; err != nil {
 		return nil, errors.New("пользователь не найден")
@@ -401,6 +401,35 @@ func (s *AccessGoService) GetUserAccessLevels(userID uint) ([]string, error) {
 		accessList = append(accessList, accessName)
 	}
 
+	return accessList, nil
+}
+
+// GetGroupAccessLevels возвращает все уровни доступа группы
+func (s *AccessGoService) GetGroupAccessLevels(groupID uint) ([]string, error) {
+	var group Group
+	if err := s.db.Preload("Accesses.Access").First(&group, groupID).Error; err != nil {
+		return nil, errors.New("группа не найдена")
+	}
+
+	accessList := make([]string, 0, len(group.Accesses))
+	for _, access := range group.Accesses {
+		accessList = append(accessList, access.Access.Name)
+	}
+
+	return accessList, nil
+}
+
+// GetUserAccessLevels возвращает все уровни доступа пользователя
+func (s *AccessGoService) GetUserAccessLevels(userID uint) ([]string, error) {
+	var user User
+	if err := s.db.Preload("Accesses.Access").First(&user, userID).Error; err != nil {
+		return nil, errors.New("пользователь не найден")
+	}
+
+	accessList := make([]string, 0, len(user.Accesses))
+	for _, access := range user.Accesses {
+		accessList = append(accessList, access.Access.Name)
+	}
 	return accessList, nil
 }
 
@@ -475,6 +504,24 @@ func (s *AccessGoService) GetAllUsers() ([]User, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+// GetGroupByID возвращает группу по ID
+func (s *AccessGoService) GetGroupByID(groupID uint) (*Group, error) {
+	var group Group
+	if err := s.db.First(&group, groupID).Error; err != nil {
+		return nil, errors.New("группа не найдена")
+	}
+	return &group, nil
+}
+
+// GetAllGroups возвращает список всех групп
+func (s *AccessGoService) GetAllGroups() ([]Group, error) {
+	var groups []Group
+	if err := s.db.Find(&groups).Error; err != nil {
+		return nil, err
+	}
+	return groups, nil
 }
 
 // CreateDefaultAdminUser создает пользователя-администратора с полными правами

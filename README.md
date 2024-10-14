@@ -98,6 +98,8 @@ fmt.Printf("User has access: %v\n", hasAccess)
 - `AddGroupAccessLevel(groupID uint, accessName string) error`
 - `CheckUserAccess(userID uint, accessName string) (bool, error)`
 - `GetUserAccessLevels(userID uint) ([]string, error)`
+- `GetUserByID(userID uint) (*User, error)`
+- `GetUserByEmail(email string) (*User, error)`
 - `SetupDefaultPermissions() error`
 
 ## Тестирование

@@ -459,6 +459,15 @@ func (s *AccessGoService) GetUserByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
+// GetUserByID возвращает пользователя по ID
+func (s *AccessGoService) GetUserByID(userID uint) (*User, error) {
+	var user User
+	if err := s.db.First(&user, userID).Error; err != nil {
+		return nil, errors.New("пользователь не найден")
+	}
+	return &user, nil
+}
+
 // CreateDefaultAdminUser создает пользователя-администратора с полными правами
 func (s *AccessGoService) CreateDefaultAdminUser(email, password, name string) error {
 	admin, err := s.CreateUser(email, password, name, UserTypeAdmin)

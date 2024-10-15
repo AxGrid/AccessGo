@@ -9,14 +9,16 @@ import (
 // User представляет пользователя в системе
 type User struct {
 	gorm.Model
-	Email     string `gorm:"unique;not null"`
-	Password  string `gorm:"not null"`
-	Name      string
-	UserType  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Accesses  []AccessLevel `gorm:"foreignKey:UserID"`
-	Groups    []Group       `gorm:"many2many:user_groups;"`
+	Email                string        `gorm:"unique;not null"`
+	EmailValidate        bool          `gorm:"not null;default:false"`
+	EmailValidationToken string        `gorm:"size:64;index:idx_user_email_validation_token"`
+	Password             string        `gorm:"size:64; not null"`
+	Name                 string        `gorm:"size:255; not null"`
+	UserType             string        `gorm:"size:15;not null"`
+	CreatedAt            time.Time     `gorm:"not null"`
+	UpdatedAt            time.Time     `gorm:"not null;index:idx_user_updated_at"`
+	Accesses             []AccessLevel `gorm:"foreignKey:UserID"`
+	Groups               []Group       `gorm:"many2many:user_groups;"`
 }
 
 // Group представляет группу пользователей
@@ -38,8 +40,8 @@ type Access struct {
 type AccessLevel struct {
 	gorm.Model
 	AccessID uint
-	UserID   *uint
-	GroupID  *uint
+	UserID   *uint  `gorm:"uniqueIndex:idx_user_group_access"`
+	GroupID  *uint  `gorm:"uniqueIndex:idx_user_group_access"`
 	Access   Access `gorm:"foreignKey:AccessID"`
 }
 

@@ -2,6 +2,7 @@ package accessgo
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -24,10 +25,11 @@ func (s *AccessGoService) CreateUser(email, password, name string, userType User
 	}
 
 	user := &User{
-		Email:    email,
-		Password: string(hashedPassword),
-		Name:     name,
-		UserType: string(userType),
+		Email:                email,
+		Password:             string(hashedPassword),
+		Name:                 name,
+		UserType:             string(userType),
+		EmailValidationToken: uuid.NewString(),
 	}
 
 	result := s.db.Create(user)
@@ -88,6 +90,24 @@ func (s *AccessGoService) CreateGroup(name string) (*Group, error) {
 	}
 
 	return group, nil
+}
+
+// ValidateEmail проверяет токен валидации email
+func (s *AccessGoService) ValidateEmail(token string) error {
+	if token == "" {
+		return errors.New("token is required")
+	}
+	var user User
+	err := s.db.Where("email_validation_token = ?", token).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("user not found")
+		}
+		return err
+	}
+	user.EmailValidate = true
+	user.EmailValidationToken = ""
+	return s.db.Save(&user).Error
 }
 
 // UpdateGroup обновляет информацию о группе
@@ -550,11 +570,12 @@ func (s *AccessGoService) AuthenticateUser(email, password string) (*User, error
 	if err != nil {
 		return nil, err
 	}
-
+	if !user.EmailValidate {
+		return nil, errors.New("email не подтвержден")
+	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return nil, errors.New("неверный пароль")
 	}
-
 	return user, nil
 }

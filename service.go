@@ -13,8 +13,21 @@ type AccessGoService struct {
 }
 
 // NewAccessGoService создает новый экземпляр AccessGoService
-func NewAccessGoService(db *gorm.DB) *AccessGoService {
-	return &AccessGoService{db: db}
+func NewAccessGoService(db *gorm.DB) (*AccessGoService, error) {
+	if err := db.AutoMigrate(&User{}, &Group{}, &Access{}, &AccessLevel{}); err != nil {
+		return nil, err
+	}
+	res := &AccessGoService{db: db}
+	var cnt int64
+	if err := db.Model(&Access{}).Count(&cnt).Error; err != nil {
+		return nil, err
+	}
+	if cnt == 0 {
+		if err := res.SetupDefaultPermissions(); err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 // CreateUser создает нового пользователя
